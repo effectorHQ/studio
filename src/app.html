@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>effectorHQ Studio</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0F0F0F; --surface: #1A1A1A; --border: #2A2A2A;
+    --text: #F5F0EB; --muted: #888; --red: #E03E3E; --orange: #F27A3A;
+    --radius: 8px; --gap: 16px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; }
+  a { color: var(--orange); }
+  h1 { font-size: 20px; font-weight: 700; }
+  h2 { font-size: 15px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  h1 span { color: var(--red); }
+
+  /* Layout */
+  .app { display: flex; height: 100vh; }
+  .panel-left { width: 420px; min-width: 380px; border-right: 1px solid var(--border); overflow-y: auto; padding: var(--gap); display: flex; flex-direction: column; gap: var(--gap); }
+  .panel-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--gap); border-bottom: 1px solid var(--border); }
+  .header .badge { font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); }
+
+  /* Form elements */
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
+  input, select, textarea {
+    width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    border-radius: var(--radius); padding: 8px 12px; font-size: 14px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--red); }
+  textarea { resize: vertical; min-height: 60px; }
+  .field { margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; }
+  .row > .field { flex: 1; }
+
+  /* Toggles */
+  .toggle-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .toggle { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .toggle.active { border-color: var(--red); background: rgba(224,62,62,0.1); }
+  .toggle input { display: none; }
+
+  /* Buttons */
+  .btn { padding: 10px 20px; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--red); color: white; }
+  .btn-primary:hover { background: #c43434; }
+  .btn-secondary { background: transparent; border: 1px solid var(--orange); color: var(--orange); }
+  .btn-secondary:hover { background: rgba(242,122,58,0.1); }
+  .actions { display: flex; gap: 8px; margin-top: auto; padding-top: var(--gap); }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .tab { padding: 10px 20px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab.active { color: var(--text); border-bottom-color: var(--red); }
+  .tab:hover { color: var(--text); }
+  .tab-content { flex: 1; overflow: auto; padding: var(--gap); }
+
+  /* Code preview */
+  pre { background: #111; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace; font-size: 13px; line-height: 1.6; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+  .kw { color: var(--red); }
+  .str { color: #98C379; }
+  .cmt { color: #5C6370; }
+  .key { color: var(--orange); }
+
+  /* Validation */
+  .validation { padding: var(--gap); }
+  .v-ok { color: #50FA7B; }
+  .v-err { color: var(--red); }
+  .v-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+
+  /* Type selector */
+  .type-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 12px; padding: 3px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
+  .chip.selected { background: rgba(224,62,62,0.15); border-color: var(--red); color: var(--red); }
+  .chip:hover { border-color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Left Panel: Form -->
+  <div class="panel-left">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h1><span>✦</span> effector studio</h1>
+      <span style="font-size:11px;color:var(--muted);">v0.1</span>
+    </div>
+
+    <section>
+      <h2>Basics</h2>
+      <div class="field">
+        <label>Name</label>
+        <input id="f-name" type="text" placeholder="my-awesome-tool" oninput="update()">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="f-desc" rows="2" placeholder="What does this tool do?" oninput="update()"></textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Type</label>
+          <select id="f-type" onchange="update()">
+            <option value="skill">skill</option>
+            <option value="extension">extension</option>
+            <option value="workflow">workflow</option>
+            <option value="workspace">workspace</option>
+            <option value="bridge">bridge</option>
+            <option value="prompt">prompt</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Version</label>
+          <input id="f-version" type="text" value="1.0.0" oninput="update()">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Interface Types</h2>
+      <div class="row">
+        <div class="field">
+          <label>Input Type</label>
+          <select id="f-input" onchange="update()"><option value="">— select —</option></select>
+        </div>
+        <div class="field">
+          <label>Output Type</label>
+          <select id="f-output" onchange="update()"><option value="">— select —</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Context Types</label>
+        <div id="context-chips" class="type-chips"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Permissions</h2>
+      <div class="toggle-group">
+        <label class="toggle" onclick="this.classList.toggle('active');update()"><input type="checkbox" id="p-network"> 🌐 Network</label>
+        <label class="toggle" onclick="this.classList.toggle('active');update()"><input type="checkbox" id="p-fs-read"> 📖 FS Read</label>
+        <label class="toggle" onclick="this.classList.toggle('active');update()"><input type="checkbox" id="p-fs-write"> ✏️ FS Write</label>
+        <label class="toggle" onclick="this.classList.toggle('active');update()"><input type="checkbox" id="p-env"> 🔑 Env</label>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="scaffold()">Write to disk</button>
+      <button class="btn btn-secondary" onclick="compileAndShow()">Compile</button>
+    </div>
+  </div>
+
+  <!-- Right Panel: Preview -->
+  <div class="panel-right">
+    <div class="header">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('toml',this)">effector.toml</div>
+        <div class="tab" onclick="switchTab('skill',this)">SKILL.md</div>
+        <div class="tab" onclick="switchTab('compiled',this)">Compiled</div>
+        <div class="tab" onclick="switchTab('validate',this)">Validation</div>
+      </div>
+      <div>
+        <select id="compile-target" onchange="compileAndShow()" style="width:auto;padding:4px 8px;font-size:12px;">
+          <option value="mcp">MCP</option>
+          <option value="openai-agents">OpenAI Agents</option>
+          <option value="langchain">LangChain</option>
+          <option value="json">JSON</option>
+        </select>
+      </div>
+    </div>
+    <div class="tab-content">
+      <pre id="preview"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+// State
+let currentTab = 'toml';
+let typeCatalog = { types: { input: {}, output: {}, context: {} } };
+let selectedContext = new Set();
+let compiledOutput = '';
+
+// Load type catalog
+fetch('/api/types').then(r => r.json()).then(catalog => {
+  typeCatalog = catalog;
+  populateTypeDropdowns();
+  populateContextChips();
+}).catch(() => {});
+
+function populateTypeDropdowns() {
+  const allTypes = [];
+  for (const [role, types] of Object.entries(typeCatalog.types || {})) {
+    for (const name of Object.keys(types)) {
+      if (!allTypes.includes(name)) allTypes.push(name);
+    }
+  }
+  allTypes.sort();
+
+  for (const sel of [document.getElementById('f-input'), document.getElementById('f-output')]) {
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— select —</option>';
+    for (const t of allTypes) {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      sel.appendChild(opt);
+    }
+    if (current) sel.value = current;
+  }
+}
+
+function populateContextChips() {
+  const contextTypes = Object.keys(typeCatalog.types?.context || {});
+  const container = document.getElementById('context-chips');
+  container.innerHTML = '';
+  for (const t of contextTypes) {
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.textContent = t;
+    chip.onclick = () => {
+      if (selectedContext.has(t)) { selectedContext.delete(t); chip.classList.remove('selected'); }
+      else { selectedContext.add(t); chip.classList.add('selected'); }
+      update();
+    };
+    container.appendChild(chip);
+  }
+}
+
+function getForm() {
+  return {
+    name: document.getElementById('f-name').value || 'my-tool',
+    description: document.getElementById('f-desc').value || 'A typed AI agent tool',
+    type: document.getElementById('f-type').value,
+    version: document.getElementById('f-version').value || '1.0.0',
+    inputType: document.getElementById('f-input').value,
+    outputType: document.getElementById('f-output').value,
+    contextTypes: [...selectedContext],
+    network: document.getElementById('p-network').checked,
+    fsRead: document.getElementById('p-fs-read').checked,
+    fsWrite: document.getElementById('p-fs-write').checked,
+    env: document.getElementById('p-env').checked,
+  };
+}
+
+function generateToml(f) {
+  let s = `[effector]\nname = "${f.name}"\nversion = "${f.version}"\ntype = "${f.type}"\ndescription = "${f.description}"\n`;
+  s += `\n[effector.interface]\n`;
+  if (f.inputType) s += `input = "${f.inputType}"\n`;
+  if (f.outputType) s += `output = "${f.outputType}"\n`;
+  if (f.contextTypes.length > 0) s += `context = [${f.contextTypes.map(t => `"${t}"`).join(', ')}]\n`;
+  s += `\n[effector.permissions]\n`;
+  s += `network = ${f.network ? '{ external = true, internal = true }' : 'false'}\n`;
+  if (f.fsRead || f.fsWrite) {
+    s += `filesystem = { read = ${f.fsRead}, write = ${f.fsWrite} }\n`;
+  } else {
+    s += `filesystem = false\n`;
+  }
+  s += `env-read = [${f.env ? '"*"' : ''}]\n`;
+  return s;
+}
+
+function generateSkill(f) {
+  return `---
+name: ${f.name}
+description: ${f.description}
+version: ${f.version}
+type: ${f.type}
+---
+
+# ${f.name}
+
+## Purpose
+
+${f.description}
+
+## When to Use
+
+- [Describe when this tool is the right choice]
+
+## When NOT to Use
+
+- [Describe when to use a different approach]
+
+## Setup
+
+\`\`\`bash
+# Prerequisites
+\`\`\`
+
+## Commands
+
+\`\`\`bash
+# Example usage
+\`\`\`
+
+## Examples
+
+**Input**: ${f.inputType || '[Describe typical input]'}
+**Output**: ${f.outputType || '[Describe expected output]'}
+`;
+}
+
+let updateTimer = null;
+function update() {
+  clearTimeout(updateTimer);
+  updateTimer = setTimeout(doUpdate, 100);
+}
+
+function doUpdate() {
+  const f = getForm();
+  const toml = generateToml(f);
+  const skill = generateSkill(f);
+
+  if (currentTab === 'toml') {
+    document.getElementById('preview').textContent = toml;
+  } else if (currentTab === 'skill') {
+    document.getElementById('preview').textContent = skill;
+  } else if (currentTab === 'compiled') {
+    document.getElementById('preview').textContent = compiledOutput || '(click Compile or switch target)';
+  } else if (currentTab === 'validate') {
+    doValidate(toml);
+  }
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (tab === 'compiled') compileAndShow();
+  else update();
+}
+
+async function compileAndShow() {
+  const f = getForm();
+  const toml = generateToml(f);
+  const skill = generateSkill(f);
+  const target = document.getElementById('compile-target').value;
+
+  try {
+    const res = await fetch('/api/compile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toml, skill, target }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      compiledOutput = typeof data.output === 'string' ? data.output : JSON.stringify(data.output, null, 2);
+    } else {
+      compiledOutput = `Error: ${data.error}`;
+    }
+  } catch (e) {
+    compiledOutput = `Error: ${e.message}`;
+  }
+
+  if (currentTab === 'compiled') {
+    document.getElementById('preview').textContent = compiledOutput;
+  }
+}
+
+async function doValidate(toml) {
+  const preview = document.getElementById('preview');
+  try {
+    const res = await fetch('/api/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toml }),
+    });
+    const data = await res.json();
+    if (data.valid) {
+      preview.innerHTML = '<span class="v-ok">✓ Valid effector definition</span>';
+    } else {
+      let html = '<span class="v-err">✗ Validation errors:</span>\n\n';
+      for (const err of data.errors || []) {
+        html += `<span class="v-err">• ${escHtml(err.message)}</span>\n`;
+      }
+      preview.innerHTML = html;
+    }
+  } catch (e) {
+    preview.textContent = `Validation failed: ${e.message}`;
+  }
+}
+
+async function scaffold() {
+  const f = getForm();
+  const toml = generateToml(f);
+  const skill = generateSkill(f);
+
+  const dir = prompt('Output directory:', `./${f.name}`);
+  if (!dir) return;
+
+  try {
+    const res = await fetch('/api/scaffold', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: f.name, toml, skill, outputDir: dir }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✓ Project written to ${data.dir}`);
+    } else {
+      alert(`Error: ${data.error}`);
+    }
+  } catch (e) {
+    alert(`Error: ${e.message}`);
+  }
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Initial render
+update();
+</script>
+</body>
+</html>
