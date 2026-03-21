@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Interactive visual studio for creating typed AI agent tools",
   "bin": {
-    "studio": "./src/cli.js",
-    "effector-studio": "./src/cli.js"
+    "studio": "src/cli.js",
+    "effector-studio": "src/cli.js"
   },
   "type": "module",
   "main": "src/server.js",
@@ -12,14 +12,32 @@
     "start": "node src/cli.js",
     "test": "node --test tests/*.test.js"
   },
-  "keywords": ["effector", "studio", "ai-agent", "visual", "creator", "mcp"],
+  "keywords": [
+    "effector",
+    "studio",
+    "ai-agent",
+    "visual",
+    "creator",
+    "mcp"
+  ],
   "author": "effectorHQ Contributors",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/effectorHQ/studio.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/effectorHQ/studio.git"
+  },
   "homepage": "https://github.com/effectorHQ/studio",
-  "bugs": { "url": "https://github.com/effectorHQ/studio/issues" },
-  "files": ["src/", "README.md", "LICENSE"],
-  "engines": { "node": ">=18.0.0" },
+  "bugs": {
+    "url": "https://github.com/effectorHQ/studio/issues"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@effectorhq/core": "^1.0.0"
   }
