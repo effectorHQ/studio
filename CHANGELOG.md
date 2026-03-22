@@ -25,6 +25,8 @@ Initial release. Published as `@effectorhq/studio`.
   - Starts the HTTP server and auto-opens the browser
   - `--port <n>` flag (default: `7432`)
   - `--no-open` flag for headless / CI use
-- Uses `@effectorhq/core` for schema validation and type resolution
+- **Compile targets** — compile manifest to MCP, OpenAI Agents, LangChain, or JSON IR directly from the UI
+- **Scaffold to disk** — `POST /api/scaffold` writes a complete project (effector.toml + SKILL.md + README + LICENSE + .gitignore + CI workflow)
+- Uses `@effectorhq/core` for parsing, schema validation, type catalog, and compilation
 - Zero npm dependencies beyond `@effectorhq/core`
 - MIT licensed

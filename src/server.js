@@ -3,7 +3,7 @@
  *
  * Routes:
  *   GET  /           → app.html (single-page UI)
- *   GET  /api/types  → 36-type catalog as JSON
+ *   GET  /api/types  → 40-type catalog as JSON
  *   POST /api/validate → validate TOML + SKILL.md
  *   POST /api/compile  → compile to target format
  */

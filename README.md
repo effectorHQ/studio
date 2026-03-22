@@ -34,7 +34,7 @@ The studio also exposes a JSON API for programmatic use:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/types` | Returns the 36-type catalog |
+| `GET` | `/api/types` | Returns the 40-type catalog |
 | `POST` | `/api/validate` | Validate `{ toml }` |
 | `POST` | `/api/compile` | Compile `{ toml, skill, target }` |
 | `POST` | `/api/scaffold` | Write project `{ name, toml, skill, outputDir }` |
