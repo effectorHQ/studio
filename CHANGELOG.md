@@ -29,4 +29,4 @@ Initial release. Published as `@effectorhq/studio`.
 - **Scaffold to disk** — `POST /api/scaffold` writes a complete project (effector.toml + SKILL.md + README + LICENSE + .gitignore + CI workflow)
 - Uses `@effectorhq/core` for parsing, schema validation, type catalog, and compilation
 - Zero npm dependencies beyond `@effectorhq/core`
-- MIT licensed
+- Apache 2.0 licensed

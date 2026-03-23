@@ -149,7 +149,15 @@ export function createServer() {
           if (body.toml) writeFileSync(join(dir, 'effector.toml'), body.toml);
           if (body.skill) writeFileSync(join(dir, 'SKILL.md'), body.skill);
           writeFileSync(join(dir, '.gitignore'), 'node_modules/\ndist/\n.DS_Store\n*.log\n');
-          writeFileSync(join(dir, 'LICENSE'), `MIT License\n\nCopyright (c) ${new Date().getFullYear()} effectorHQ Contributors\n`);
+          // Scaffold project license from this package's LICENSE template.
+          // Keep the year in sync with scaffold time.
+          const year = new Date().getFullYear();
+          const licenseTemplate = readFileSync(join(__dirname, '..', 'LICENSE'), 'utf-8');
+          const licenseText = licenseTemplate.replace(
+            /^(\s*Copyright\s*\(c\)\s*)\d{4}/m,
+            `$1${year}`,
+          );
+          writeFileSync(join(dir, 'LICENSE'), licenseText);
           json(res, { success: true, dir });
         } catch (e) {
           json(res, { success: false, error: e.message }, 500);
