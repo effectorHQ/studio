@@ -149,15 +149,25 @@ export function createServer() {
           if (body.toml) writeFileSync(join(dir, 'effector.toml'), body.toml);
           if (body.skill) writeFileSync(join(dir, 'SKILL.md'), body.skill);
           writeFileSync(join(dir, '.gitignore'), 'node_modules/\ndist/\n.DS_Store\n*.log\n');
-          // Scaffold project license from this package's LICENSE template.
+          // Scaffold project license from this package's LICENSE.md template.
           // Keep the year in sync with scaffold time.
           const year = new Date().getFullYear();
-          const licenseTemplate = readFileSync(join(__dirname, '..', 'LICENSE'), 'utf-8');
-          const licenseText = licenseTemplate.replace(
-            /^(\s*Copyright\s*\(c\)\s*)\d{4}/m,
-            `$1${year}`,
-          );
-          writeFileSync(join(dir, 'LICENSE'), licenseText);
+          const raw = readFileSync(join(__dirname, '..', 'LICENSE.md'), 'utf-8');
+          const fenceOpen = '```text\n';
+          const openIdx = raw.indexOf(fenceOpen);
+          const closeIdx = raw.lastIndexOf('\n```');
+          let licenseText;
+          if (openIdx === -1 || closeIdx <= openIdx) {
+            licenseText = raw.replace(/^(\s*Copyright\s*\(c\)\s*)\d{4}/m, `$1${year}`);
+          } else {
+            const inner = raw.slice(openIdx + fenceOpen.length, closeIdx);
+            const updatedInner = inner.replace(
+              /^(\s*Copyright\s*\(c\)\s*)\d{4}/m,
+              `$1${year}`,
+            );
+            licenseText = raw.slice(0, openIdx + fenceOpen.length) + updatedInner + raw.slice(closeIdx);
+          }
+          writeFileSync(join(dir, 'LICENSE.md'), licenseText);
           json(res, { success: true, dir });
         } catch (e) {
           json(res, { success: false, error: e.message }, 500);
